@@ -101,6 +101,36 @@ def get_transforms(task='fgvc', split='train', img_size=448, crop_size=448):
     return transform
 
 
+def get_train_transforms(task='fgvc', img_size=448, crop_size=448):
+    """
+    Get training transforms for a given task.
+    
+    Args:
+        task (str): 'fgvc' or 'reid'
+        img_size (int or tuple): Target image size
+        crop_size (int or tuple): Random crop size (for FGVC)
+        
+    Returns:
+        torchvision.transforms.Compose: Composed transforms for training
+    """
+    return get_transforms(task=task, split='train', img_size=img_size, crop_size=crop_size)
+
+
+def get_val_transforms(task='fgvc', img_size=448, crop_size=448):
+    """
+    Get validation/test transforms for a given task.
+    
+    Args:
+        task (str): 'fgvc' or 'reid'
+        img_size (int or tuple): Target image size
+        crop_size (int or tuple): Center crop size (for FGVC)
+        
+    Returns:
+        torchvision.transforms.Compose: Composed transforms for validation/testing
+    """
+    return get_transforms(task=task, split='test', img_size=img_size, crop_size=crop_size)
+
+
 class RandomErasing:
     """
     Random erasing augmentation for ReID.
