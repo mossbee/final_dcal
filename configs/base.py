@@ -40,6 +40,7 @@ class BaseConfig:
         lr_scheduler (str): Learning rate scheduler type
         weight_decay (float): Weight decay for optimizer
         epochs (int): Total training epochs
+        warmup_epochs (int): Number of warmup epochs
         batch_size (int): Batch size for training
         num_workers (int): Number of data loading workers
         
@@ -91,6 +92,7 @@ class BaseConfig:
         self.weight_decay = 0.05
         self.momentum = 0.9
         self.epochs = 100
+        self.warmup_epochs = 5
         self.batch_size = 16
         self.num_workers = 4
         

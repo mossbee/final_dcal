@@ -184,7 +184,7 @@ def main():
     logger.info(f"Model created with {sum(p.numel() for p in model.parameters())/1e6:.2f}M parameters")
     
     # Build optimizer
-    optimizer = build_optimizer(model, config)
+    optimizer = build_optimizer(config, model)
     logger.info(f"Optimizer: {optimizer}")
     
     # Build scheduler
