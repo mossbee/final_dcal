@@ -50,6 +50,7 @@ class BaseConfig:
         
         # Regularization
         stochastic_depth_prob (float): Stochastic depth drop probability
+        use_amp (bool): Use automatic mixed precision training
         
         # Logging and Checkpointing
         log_dir (str): Directory for logs
@@ -102,6 +103,7 @@ class BaseConfig:
         
         # Regularization
         self.stochastic_depth_prob = 0.1
+        self.use_amp = True
         
         # Logging and checkpointing
         self.log_dir = 'experiments/logs'

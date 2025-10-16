@@ -22,7 +22,7 @@ from data.datasets.fgvc.cub import CUBDataset
 from data.transforms import get_train_transforms, get_val_transforms
 from optimizer.build import build_optimizer
 from optimizer.scheduler import WarmupCosineSchedule
-from loss.cross_entropy import CrossEntropyLoss
+from loss.cross_entropy import CrossEntropyLoss, LabelSmoothingCrossEntropy
 from utils.logger import setup_logger
 from utils.misc import set_seed, create_dirs
 from configs.fgvc.cub import CUBConfig
@@ -195,7 +195,10 @@ def main():
     )
     
     # Build loss function
-    loss_fn = CrossEntropyLoss(label_smoothing=config.label_smoothing)
+    if config.label_smoothing > 0:
+        loss_fn = LabelSmoothingCrossEntropy(smoothing=config.label_smoothing)
+    else:
+        loss_fn = CrossEntropyLoss()
     
     # Create trainer
     logger.info("Creating trainer...")
