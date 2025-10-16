@@ -139,8 +139,8 @@ def main():
     
     # Create datasets
     logger.info("Creating datasets...")
-    train_transform = get_train_transforms(config.img_size, config.crop_size)
-    val_transform = get_val_transforms(config.img_size, config.crop_size)
+    train_transform = get_train_transforms(config.task, config.img_size, config.crop_size)
+    val_transform = get_val_transforms(config.task, config.img_size, config.crop_size)
     
     train_dataset = CUBDataset(config.data_root, split='train', transform=train_transform)
     val_dataset = CUBDataset(config.data_root, split='test', transform=val_transform)
