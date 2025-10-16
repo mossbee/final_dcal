@@ -98,3 +98,15 @@ def create_dir(path):
     import os
     os.makedirs(path, exist_ok=True)
 
+
+def create_dirs(*paths):
+    """
+    Create multiple directories if they don't exist.
+    
+    Args:
+        *paths: Variable number of directory paths
+    """
+    import os
+    for path in paths:
+        os.makedirs(path, exist_ok=True)
+
