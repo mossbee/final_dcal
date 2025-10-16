@@ -76,9 +76,13 @@ class BaseTrainer:
         self.use_amp = getattr(config, 'use_amp', True)
         self.scaler = GradScaler() if self.use_amp else None
         
+        # Gradient accumulation
+        self.gradient_accumulation_steps = getattr(config, 'gradient_accumulation_steps', 1)
+        
         # Training state
         self.current_epoch = 0
         self.global_step = 0
+        self.accumulation_step = 0
         self.best_metric = 0.0
     
     def train(self):
@@ -125,6 +129,7 @@ class BaseTrainer:
             dict: Training metrics (loss, accuracy, etc.)
         """
         self.model.train()
+        self.optimizer.zero_grad()  # Initialize gradients at start of epoch
         total_metrics = {}
         
         for batch_idx, batch in enumerate(self.train_loader):

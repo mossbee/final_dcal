@@ -42,6 +42,7 @@ class BaseConfig:
         epochs (int): Total training epochs
         warmup_epochs (int): Number of warmup epochs
         batch_size (int): Batch size for training
+        gradient_accumulation_steps (int): Steps to accumulate gradients
         num_workers (int): Number of data loading workers
         
         # Loss
@@ -95,6 +96,7 @@ class BaseConfig:
         self.epochs = 100
         self.warmup_epochs = 5
         self.batch_size = 16
+        self.gradient_accumulation_steps = 1  # Accumulate gradients over N steps
         self.num_workers = 4
         
         # Loss

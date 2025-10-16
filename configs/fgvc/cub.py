@@ -24,8 +24,9 @@ class CUBConfig(BaseConfig):
     - Stochastic depth enabled
     
     Note: The paper used 4 GPUs for training. For single GPU (16GB):
-    - Recommended batch size: 4-8
-    - Adjust learning rate proportionally: lr = (5e-4 / 512) * batch_size
+    - Recommended: batch_size=2, gradient_accumulation=4 (effective batch=8)
+    - Or: batch_size=4, gradient_accumulation=2 (effective batch=8)
+    - Learning rate scales with effective batch size
     
     Attributes:
         num_classes (int): 200 bird species
@@ -55,11 +56,14 @@ class CUBConfig(BaseConfig):
         self.optimizer = 'adam'
         self.weight_decay = 0.05
         self.epochs = 100
-        # Batch size: 8 for single GPU (16GB), paper used 16 with 4 GPUs
-        self.batch_size = 8
+        # Memory-efficient: Use batch_size=2 with gradient_accumulation=4
+        # Effective batch size = 2 * 4 = 8 (paper used 16 with 4 GPUs)
+        self.batch_size = 2
+        self.gradient_accumulation_steps = 4
         
-        # LR scaling: 5e-4 / 512 * batch_size
-        self.learning_rate = (5e-4 / 512) * self.batch_size
+        # LR scaling: 5e-4 / 512 * effective_batch_size
+        effective_batch_size = self.batch_size * self.gradient_accumulation_steps
+        self.learning_rate = (5e-4 / 512) * effective_batch_size
         
         # Loss
         self.use_uncertainty_weighting = True

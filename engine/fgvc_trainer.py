@@ -69,24 +69,34 @@ class FGVCTrainer(BaseTrainer):
             outputs = self.model(images, pairs=pairs)
             total_loss, loss_dict = self._compute_loss(outputs, labels)
         
+        # Scale loss by accumulation steps
+        total_loss = total_loss / self.gradient_accumulation_steps
+        
         # Backward pass
-        self.optimizer.zero_grad()
         if self.use_amp:
             self.scaler.scale(total_loss).backward()
-            self.scaler.step(self.optimizer)
-            self.scaler.update()
         else:
             total_loss.backward()
-            self.optimizer.step()
+        
+        # Update weights only after accumulating gradients
+        self.accumulation_step += 1
+        if self.accumulation_step % self.gradient_accumulation_steps == 0:
+            if self.use_amp:
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
+            else:
+                self.optimizer.step()
+            self.optimizer.zero_grad()
+            self.accumulation_step = 0
         
         # Compute accuracy (combine SA + GLCA for inference)
         with torch.no_grad():
             combined_logits = outputs['sa_logits'] + outputs['glca_logits']
             acc = self._compute_accuracy(combined_logits, labels)
         
-        # Collect metrics
+        # Collect metrics (multiply by accumulation steps to get actual loss)
         metrics = {
-            'total_loss': total_loss.item(),
+            'total_loss': total_loss.item() * self.gradient_accumulation_steps,
             **loss_dict,
             **acc
         }
