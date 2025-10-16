@@ -38,7 +38,13 @@ def setup_logger(name, log_file=None, level=logging.INFO):
     # File handler
     if log_file is not None:
         import os
-        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        # If log_file is a directory, create a default log file in it
+        if os.path.isdir(log_file) or (not os.path.exists(log_file) and not log_file.endswith('.log')):
+            log_file = os.path.join(log_file, 'train.log')
+        # Ensure parent directory exists
+        log_dir = os.path.dirname(log_file)
+        if log_dir:
+            os.makedirs(log_dir, exist_ok=True)
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
