@@ -24,6 +24,7 @@ class BaseConfig:
         num_glca_blocks (int): Number of GLCA blocks (default: 1)
         num_pwca_blocks (int): Number of PWCA blocks (default: 12)
         glca_top_r (float): Top-R ratio for GLCA local query selection
+        glca_layer_idx (int): Which SA layer to branch GLCA from (default: 11)
         pwca_enabled (bool): Whether to use PWCA during training
         share_pwca_weights (bool): Share weights between SA and PWCA branches
         
@@ -73,6 +74,7 @@ class BaseConfig:
         self.num_glca_blocks = 1
         self.num_pwca_blocks = 12
         self.glca_top_r = 0.1
+        self.glca_layer_idx = 11  # Which SA layer to branch GLCA from (0-indexed)
         self.pwca_enabled = True
         self.share_pwca_weights = True
         

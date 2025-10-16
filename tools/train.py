@@ -171,12 +171,12 @@ def main():
     vit_config = CONFIGS[config.model_type]
     model = DCALModel(
         config=vit_config,
-        img_size=config.img_size,
+        img_size=config.crop_size,
         num_classes=config.num_classes,
         glca_top_r=config.glca_top_r,
         glca_layer_idx=config.glca_layer_idx,
-        use_pwca=config.use_pwca,
-        task='fgvc',
+        use_pwca=config.pwca_enabled,
+        task=config.task,
         pretrained_path=config.pretrained_path if hasattr(config, 'pretrained_path') else None
     )
     model = model.to(device)
