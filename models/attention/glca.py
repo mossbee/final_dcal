@@ -83,8 +83,10 @@ class GlobalLocalCrossAttention(nn.Module):
         B, N_plus_1, C = x.shape
         N = N_plus_1 - 1  # Number of patches (excluding CLS)
         
-        # Step 1: Compute attention rollout
+        # Step 1: Compute attention rollout (detach to save memory)
+        # Note: attention_rollout already detaches internally
         rollout_map = attention_rollout(sa_attention_weights, head_fusion='mean')
+        rollout_map = rollout_map.detach()  # Ensure no gradients are tracked
         
         # Step 2: Get CLS attention to patches and select top-R
         cls_attention = get_cls_attention_map(rollout_map)  # [B, N]

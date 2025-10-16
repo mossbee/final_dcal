@@ -28,12 +28,20 @@ def attention_rollout(attentions, head_fusion='mean', discard_ratio=0.0):
     """
     B = attentions[0].shape[0]
     num_tokens = attentions[0].shape[-1]
+    device = attentions[0].device
+    
+    # Use float32 for stability but save memory
+    dtype = torch.float32
+    
+    # Create identity matrix once and reuse
+    I = torch.eye(num_tokens, device=device, dtype=dtype).unsqueeze(0)  # [1, N+1, N+1]
     
     # Initialize result as identity matrix for each sample in batch
-    result = torch.eye(num_tokens, device=attentions[0].device, dtype=attentions[0].dtype)
-    result = result.unsqueeze(0).expand(B, -1, -1)  # [B, N+1, N+1]
+    result = I.expand(B, -1, -1).clone()  # [B, N+1, N+1]
     
     for attention in attentions:
+        # Detach attention to save memory (rollout doesn't need gradients)
+        attention = attention.detach().to(dtype=dtype)
         # Fuse attention heads: [B, num_heads, N+1, N+1] -> [B, N+1, N+1]
         if head_fusion == "mean":
             attention_heads_fused = attention.mean(dim=1)
@@ -63,16 +71,14 @@ def attention_rollout(attentions, head_fusion='mean', discard_ratio=0.0):
             attention_heads_fused = attention_heads_fused * mask
         
         # Add residual connection (identity): S_bar = 0.5 * S + 0.5 * I
-        I = torch.eye(num_tokens, device=attention.device, dtype=attention.dtype)
-        I = I.unsqueeze(0).expand(B, -1, -1)
-        
-        attention_with_residual = 0.5 * attention_heads_fused + 0.5 * I
+        # Use in-place operations to save memory
+        attention_heads_fused.mul_(0.5).add_(I.expand(B, -1, -1), alpha=0.5)
         
         # Normalize rows to sum to 1
-        attention_with_residual = attention_with_residual / attention_with_residual.sum(dim=-1, keepdim=True)
+        attention_heads_fused.div_(attention_heads_fused.sum(dim=-1, keepdim=True))
         
         # Multiply with accumulated result
-        result = torch.bmm(attention_with_residual, result)
+        result = torch.bmm(attention_heads_fused, result)
     
     return result
 

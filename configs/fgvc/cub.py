@@ -19,9 +19,13 @@ class CUBConfig(BaseConfig):
     - Optimizer: Adam with weight decay 0.05
     - LR: 5e-4 / 512 * batch_size, cosine decay
     - Epochs: 100
-    - Batch size: 16
+    - Batch size: 16 (paper used 4 GPUs; use 4-8 for single GPU)
     - Loss: Cross-entropy with uncertainty weighting
     - Stochastic depth enabled
+    
+    Note: The paper used 4 GPUs for training. For single GPU (16GB):
+    - Recommended batch size: 4-8
+    - Adjust learning rate proportionally: lr = (5e-4 / 512) * batch_size
     
     Attributes:
         num_classes (int): 200 bird species
@@ -51,7 +55,8 @@ class CUBConfig(BaseConfig):
         self.optimizer = 'adam'
         self.weight_decay = 0.05
         self.epochs = 100
-        self.batch_size = 16
+        # Batch size: 8 for single GPU (16GB), paper used 16 with 4 GPUs
+        self.batch_size = 8
         
         # LR scaling: 5e-4 / 512 * batch_size
         self.learning_rate = (5e-4 / 512) * self.batch_size
